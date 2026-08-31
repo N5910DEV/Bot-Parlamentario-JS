@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,7 +16,7 @@ module.exports = {
             const apiLatency = Math.round(interaction.client.ws.ping);
             
             await interaction.editReply(
-                `🏓 Pong!\n` +
+                `Pong!\n` +
                 `**Roundtrip latency:** ${roundtrip}ms\n` +
                 `**WebSocket heartbeat:** ${apiLatency}ms`
             );
@@ -26,9 +26,9 @@ module.exports = {
             const errorMessage = 'Error ejecutando este comando!';
             
             if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: errorMessage, ephemeral: true });
+                await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
             } else {
-                await interaction.reply({ content: errorMessage, ephemeral: true });
+                await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
             }
         }
     },

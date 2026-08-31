@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const councilService = require('../services/CouncilService');
 const { motionService, CastVoteStatus } = require('../services/MotionService');
 
@@ -18,8 +18,8 @@ module.exports = {
             
             if (!council.enabled) {
                 return interaction.reply({
-                    content: '❌ No hay ningun council en este canal.',
-                    ephemeral: true
+                    content: 'No hay ningun council en este canal.',
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -28,8 +28,8 @@ module.exports = {
                 !interaction.member.roles.cache.has(council.councilorRole)
             ) {
                 return interaction.reply({
-                    content: '❌ Solo los miembros del council pueden votar.',
-                    ephemeral: true
+                    content: 'Solo los miembros del council pueden votar.',
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -37,8 +37,8 @@ module.exports = {
             
             if (!currentMotion) {
                 return interaction.reply({
-                    content: '❌ No hay ninguna mocion aun.',
-                    ephemeral: true
+                    content: 'No hay ninguna mocion aun.',
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -46,8 +46,8 @@ module.exports = {
 
             if (council.reasonRequiredNo && !reason) {
                 return interaction.reply({
-                    content: '❌ Debes dar el motivo de tu voto.',
-                    ephemeral: true
+                    content: 'Debes dar el motivo de tu voto.',
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -77,16 +77,16 @@ module.exports = {
 
             if (status === CastVoteStatus.Failed) {
                 return interaction.reply({
-                    content: '❌ Fallo al votar.',
-                    ephemeral: true
+                    content: 'Fallo al votar.',
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
             const embed = motionService.createMotionEmbed(interaction.channelId, currentMotion.index, weights);
 
             const message = status === CastVoteStatus.Changed 
-                ? '❌ Voto cambiado a **No**'
-                : '❌ Votaste **No**';
+                ? 'Voto cambiado a **No**'
+                : 'Votaste **No**';
 
             await interaction.reply({
                 content: message,
@@ -99,9 +99,9 @@ module.exports = {
             const errorMessage = 'There was an error while executing this command!';
             
             if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: errorMessage, ephemeral: true });
+                await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
             } else {
-                await interaction.reply({ content: errorMessage, ephemeral: true });
+                await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
             }
         }
     },

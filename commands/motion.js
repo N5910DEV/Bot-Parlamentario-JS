@@ -1,4 +1,4 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags } = require('discord.js');
 const councilService = require('../services/CouncilService');
 const { motionService, MotionResolution } = require('../services/MotionService');
 
@@ -30,8 +30,8 @@ module.exports = {
             
             if (!council.enabled) {
                 return interaction.reply({
-                    content: '❌ There is no council in this channel. Use `/council create` first.',
-                    ephemeral: true
+                    content: 'There is no council in this channel. Use `/council create` first.',
+                    flags: MessageFlags.Ephemeral
                 });
             }
 
@@ -43,8 +43,8 @@ module.exports = {
                     !interaction.member.roles.cache.has(council.proposeRole)
                 ) {
                     return interaction.reply({
-                        content: '❌ No tienes el rol necesario para proponer mociones.',
-                        ephemeral: true
+                        content: 'No tienes el rol necesario para proponer mociones.',
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -52,8 +52,8 @@ module.exports = {
                 
                 if (currentMotion && !council.motionQueue) {
                     return interaction.reply({
-                        content: '❌ There is already an active motion. Wait for it to finish or use `/motion kill` to cancel it.',
-                        ephemeral: true
+                        content: 'There is already an active motion. Wait for it to finish or use `/motion kill` to cancel it.',
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -63,8 +63,8 @@ module.exports = {
                     const cooldown = councilService.getUserCooldown(interaction.channelId, interaction.user.id);
                     const hours = (cooldown / 3600000).toFixed(2);
                     return interaction.reply({
-                        content: `❌ You must wait ${hours} hours between motions.`,
-                        ephemeral: true
+                        content: `You must wait ${hours} hours between motions.`,
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -78,8 +78,8 @@ module.exports = {
 
                     if (!text.trim()) {
                         return interaction.reply({
-                            content: '❌ La mocion debe incluir un texto.',
-                            ephemeral: true
+                            content: 'La mocion debe incluir un texto.',
+                            flags: MessageFlags.Ephemeral
                         });
                     }
 
@@ -88,14 +88,14 @@ module.exports = {
                         options.majority < council.majorityMinimum
                     ) {
                         return interaction.reply({
-                            content: `❌ The majority type must be at least ${(council.majorityMinimum * 100).toFixed(0)}%.`,
-                            ephemeral: true
+                            content: `The majority type must be at least ${(council.majorityMinimum * 100).toFixed(0)}%.`,
+                            flags: MessageFlags.Ephemeral
                         });
                     }
                 } catch (error) {
                     return interaction.reply({
-                        content: `❌ Invalid motion options: ${error.message}`,
-                        ephemeral: true
+                        content: `Invalid motion options: ${error.message}`,
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -114,7 +114,7 @@ module.exports = {
                 const embed = motionService.createMotionEmbed(interaction.channelId, index, weights);
 
                 await interaction.reply({
-                    content: `📜 **New motion proposed!** Use \`/yes\`, \`/no\`, or \`/abstain\` to vote.`,
+                    content: `**New motion proposed!** Use \`/yes\`, \`/no\`, or \`/abstain\` to vote.`,
                     embeds: [embed]
                 });
 
@@ -123,8 +123,8 @@ module.exports = {
                 
                 if (!currentMotion) {
                     return interaction.reply({
-                        content: '❌ There is no active motion. Use `/motion create` to start one.',
-                        ephemeral: true
+                        content: 'There is no active motion. Use `/motion create` to start one.',
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -142,8 +142,8 @@ module.exports = {
                 
                 if (!currentMotion) {
                     return interaction.reply({
-                        content: '❌ There is no active motion.',
-                        ephemeral: true
+                        content: 'There is no active motion.',
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
@@ -152,16 +152,15 @@ module.exports = {
                 
                 if (!isAuthor && !isAdmin) {
                     return interaction.reply({
-                        content: '❌ Only the motion author or administrators can kill a motion.',
-                        ephemeral: true
+                        content: 'Only the motion author or administrators can kill a motion.',
+                        flags: MessageFlags.Ephemeral
                     });
                 }
 
                 motionService.killMotion(interaction.channelId, currentMotion.index);
 
                 await interaction.reply({
-                    content: `🗑️ Motion #${currentMotion.index + 1} has been killed.`,
-                    ephemeral: false
+                    content: `Motion #${currentMotion.index + 1} has been killed.`,
                 });
             }
         } catch (error) {
@@ -170,9 +169,9 @@ module.exports = {
             const errorMessage = 'There was an error while executing this command!';
             
             if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: errorMessage, ephemeral: true });
+                await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
             } else {
-                await interaction.reply({ content: errorMessage, ephemeral: true });
+                await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
             }
         }
     },

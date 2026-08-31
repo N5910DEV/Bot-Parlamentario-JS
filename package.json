@@ -1,0 +1,17 @@
+{
+  "name": "bot-parlamentario",
+  "version": "1.0.0",
+  "description": "Bot de Discord para gestionar councils y mociones parlamentarias",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "discord.js": "^14.27.0",
+    "dotenv": "^17.4.2"
+  }
+}

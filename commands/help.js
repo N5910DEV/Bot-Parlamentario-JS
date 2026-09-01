@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,7 +11,7 @@ module.exports = {
 
             const helpEmbed = new EmbedBuilder()
                 .setColor(0x0099ff)
-                .setTitle("Comandos")
+                .setTitle("🤖 Comandos")
                 .setDescription("Comandos Disponibles:")
                 .setTimestamp()
                 .setFooter({
@@ -36,12 +36,12 @@ module.exports = {
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             } else {
                 await interaction.reply({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             }
         }

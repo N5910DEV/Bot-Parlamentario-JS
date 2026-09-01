@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 const councilService = require("../services/CouncilService");
 const { motionService, CastVoteStatus } = require("../services/MotionService");
 
@@ -20,8 +20,8 @@ module.exports = {
 
             if (!council.enabled) {
                 return interaction.reply({
-                    content: "No hay ningun consejo en este canal.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ No hay ningun consejo en este canal.",
+                    ephemeral: true,
                 });
             }
 
@@ -30,8 +30,8 @@ module.exports = {
                 !interaction.member.roles.cache.has(council.councilorRole)
             ) {
                 return interaction.reply({
-                    content: "Solo los miembros del council pueden votar.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ Solo los miembros del council pueden votar.",
+                    ephemeral: true,
                 });
             }
 
@@ -41,8 +41,8 @@ module.exports = {
 
             if (!currentMotion) {
                 return interaction.reply({
-                    content: "No hay ninguna mocion aun.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ No hay ninguna mocion aun.",
+                    ephemeral: true,
                 });
             }
 
@@ -50,8 +50,8 @@ module.exports = {
 
             if (council.reasonRequiredYes && !reason) {
                 return interaction.reply({
-                    content: "Debes dar el motivo de tu voto.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ Debes dar el motivo de tu voto.",
+                    ephemeral: true,
                 });
             }
 
@@ -59,9 +59,9 @@ module.exports = {
                 council.dictatorRole &&
                 interaction.member.roles.cache.has(council.dictatorRole);
 
-            const weights = councilService.calculateTotalWeight(
+            const weights = await councilService.calculateGuildTotalWeight(
                 interaction.channelId,
-                interaction.guild.members.cache,
+                interaction.guild,
             );
 
             const vote = {
@@ -82,8 +82,8 @@ module.exports = {
 
             if (status === CastVoteStatus.Failed) {
                 return interaction.reply({
-                    content: "Fallo al votar.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ Fallo al votar.",
+                    ephemeral: true,
                 });
             }
 
@@ -95,8 +95,8 @@ module.exports = {
 
             const message =
                 status === CastVoteStatus.Changed
-                    ? "Voto cambiado a **Aye**"
-                    : "Votaste **Aye**";
+                    ? "✅ Voto cambiado a **Aye**"
+                    : "✅ Votaste **Aye**";
 
             await interaction.reply({
                 content: message,
@@ -111,12 +111,12 @@ module.exports = {
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             } else {
                 await interaction.reply({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             }
         }

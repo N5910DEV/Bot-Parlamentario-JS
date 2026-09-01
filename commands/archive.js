@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder } = require("discord.js");
 const councilService = require("../services/CouncilService");
 const {
     motionService,
@@ -25,8 +25,8 @@ module.exports = {
 
             if (!council.enabled) {
                 return interaction.reply({
-                    content: "No hay ningun consejo en este canal.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ No hay ningun consejo en este canal.",
+                    ephemeral: true,
                 });
             }
 
@@ -38,8 +38,8 @@ module.exports = {
 
             if (allMotions.length === 0) {
                 return interaction.reply({
-                    content: "No se encontraron mociones en el archivo.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "📜 No se encontraron mociones en el archivo.",
+                    ephemeral: true,
                 });
             }
 
@@ -48,14 +48,14 @@ module.exports = {
 
                 if (index < 0 || index >= allMotions.length) {
                     return interaction.reply({
-                        content: `Mocion #${motionNumber} no fue encontrada. Rango Valido: 1-${allMotions.length}`,
-                        flags: MessageFlags.Ephemeral,
+                        content: `❌ Mocion #${motionNumber} no fue encontrada. Rango Valido: 1-${allMotions.length}`,
+                        ephemeral: true,
                     });
                 }
 
-                const weights = councilService.calculateTotalWeight(
+                const weights = await councilService.calculateGuildTotalWeight(
                     interaction.channelId,
-                    interaction.guild.members.cache,
+                    interaction.guild,
                 );
 
                 const embed = motionService.createMotionEmbed(
@@ -66,7 +66,7 @@ module.exports = {
 
                 await interaction.reply({ embeds: [embed] });
             } else {
-                let summary = `**Mocion Archivada por ${council.name}**\n\n`;
+                let summary = `**📜 Mocion Archivada por ${council.name}**\n\n`;
                 summary += `Total de Mociones: ${allMotions.length}\n\n`;
 
                 const recentMotions = allMotions.slice(-10).reverse();
@@ -78,13 +78,13 @@ module.exports = {
 
                     let status = "";
                     if (motion.resolution === MotionResolution.Passed) {
-                        status = "Pasadas";
+                        status = "✅ Pasadas";
                     } else if (motion.resolution === MotionResolution.Failed) {
-                        status = "Fallidas";
+                        status = "❌ Fallidas";
                     } else if (motion.resolution === MotionResolution.Killed) {
-                        status = "Killed";
+                        status = "🗑️ Killed";
                     } else {
-                        status = "Activas";
+                        status = "📝 Activas";
                     }
 
                     const shortText =
@@ -101,6 +101,7 @@ module.exports = {
 
                 await interaction.reply({
                     content: summary,
+                    ephemeral: false,
                 });
             }
         } catch (error) {
@@ -112,12 +113,12 @@ module.exports = {
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             } else {
                 await interaction.reply({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             }
         }

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 const councilService = require("../services/CouncilService");
 
 module.exports = {
@@ -33,8 +33,8 @@ module.exports = {
         try {
             if (!interaction.member.permissions.has("ManageGuild")) {
                 return interaction.reply({
-                    content: "Necesitas permisos de administrador del servidor.",
-                    flags: MessageFlags.Ephemeral,
+                    content: "❌ Necesitas permisos de administrador del servidor.",
+                    ephemeral: true,
                 });
             }
 
@@ -45,7 +45,8 @@ module.exports = {
                 councilService.createCouncil(interaction.channelId, name);
 
                 await interaction.reply({
-                    content: `Council "${name}" ha sido creado en este canal! usa \`/motion\` para proponer mociones.`,
+                    content: `✅ Council "${name}" ha sido creado en este canal! usa \`/motion\` para proponer mociones.`,
+                    ephemeral: false,
                 });
             } else if (subcommand === "remove") {
                 const council = councilService.getCouncil(
@@ -54,15 +55,16 @@ module.exports = {
 
                 if (!council.enabled) {
                     return interaction.reply({
-                        content: "No hay ningun council en este canal.",
-                        flags: MessageFlags.Ephemeral,
+                        content: "❌ No hay ningun council en este canal.",
+                        ephemeral: true,
                     });
                 }
 
                 councilService.removeCouncil(interaction.channelId);
 
                 await interaction.reply({
-                    content: "Council ha sido removido de este canal.",
+                    content: "✅ Council ha sido removido de este canal.",
+                    ephemeral: false,
                 });
             } else if (subcommand === "info") {
                 const council = councilService.getCouncil(
@@ -71,8 +73,8 @@ module.exports = {
 
                 if (!council.enabled) {
                     return interaction.reply({
-                        content: "No hay ningun council en este canal.",
-                        flags: MessageFlags.Ephemeral,
+                        content: "❌ No hay ningun council en este canal.",
+                        ephemeral: true,
                     });
                 }
 
@@ -94,6 +96,7 @@ module.exports = {
 
                 await interaction.reply({
                     content: info,
+                    ephemeral: false,
                 });
             }
         } catch (error) {
@@ -105,12 +108,12 @@ module.exports = {
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             } else {
                 await interaction.reply({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             }
         }

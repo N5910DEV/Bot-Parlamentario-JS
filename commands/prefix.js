@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageFlags } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const config = require('../config');
 
 module.exports = {
@@ -16,32 +16,36 @@ module.exports = {
             // Check if user has administrator permission
             if (!interaction.member.permissions.has('Administrator')) {
                 return interaction.reply({
-                    content: 'Necesitas administrador!',
-                    flags: MessageFlags.Ephemeral
+                    content: '❌ Necesitas administrador!',
+                    ephemeral: true
                 });
             }
             
-            const newPrefix = interaction.options.getString('new_prefix');
+            // Accept the previous option name while existing guild commands
+            // are being refreshed from the updated command definition.
+            const newPrefix =
+                interaction.options.getString('new_prefix') ||
+                interaction.options.getString('nuevo_prefix');
 
             if (!newPrefix || !newPrefix.trim()) {
                 return interaction.reply({
-                    content: 'Debes indicar un prefijo nuevo.',
-                    flags: MessageFlags.Ephemeral
+                    content: '❌ Debes indicar un prefijo nuevo.',
+                    ephemeral: true
                 });
             }
             
             // Validate prefix
             if (newPrefix.length > 3) {
                 return interaction.reply({
-                    content: 'Prefix debe tener menos de 3 caracteres!',
-                    flags: MessageFlags.Ephemeral
+                    content: '❌ Prefix debe tener menos de 3 caracteres!',
+                    ephemeral: true
                 });
             }
             
             if (newPrefix.includes(' ')) {
                 return interaction.reply({
-                    content: 'Prefix no debe tener espacios!',
-                    flags: MessageFlags.Ephemeral
+                    content: '❌ Prefix no debe tener espacios!',
+                    ephemeral: true
                 });
             }
             
@@ -52,7 +56,7 @@ module.exports = {
             config.bot.prefix = newPrefix;
             
             await interaction.reply({
-                content: `Bot prefix cambiado de \`${oldPrefix}\` a \`${newPrefix}\`!\n` +
+                content: `✅ Bot prefix cambiado de \`${oldPrefix}\` a \`${newPrefix}\`!\n` +
                         `Ahora puedes usar los comandos: \`${newPrefix}help\``
             });
             
@@ -66,9 +70,9 @@ module.exports = {
             const errorMessage = 'Error Ejecutando este comando!';
             
             if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
+                await interaction.followUp({ content: errorMessage, ephemeral: true });
             } else {
-                await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
+                await interaction.reply({ content: errorMessage, ephemeral: true });
             }
         }
     },
@@ -77,22 +81,22 @@ module.exports = {
         try {
             // Check if user has administrator permission
             if (!message.member.permissions.has('Administrator')) {
-                return message.reply('Necesitas administrador!');
+                return message.reply('❌ Necesitas administrador!');
             }
             
             if (args.length === 0) {
-                return message.reply(`Please provide a new prefix! Usage: \`${config.bot.prefix}prefix <new_prefix>\``);
+                return message.reply(`❌ Please provide a new prefix! Usage: \`${config.bot.prefix}prefix <new_prefix>\``);
             }
             
             const newPrefix = args[0];
             
             // Validate prefix
             if (newPrefix.length > 3) {
-                return message.reply('Prefix debe tener menos de 3 caracteres!');
+                return message.reply('❌ Prefix debe tener menos de 3 caracteres!');
             }
             
             if (newPrefix.includes(' ')) {
-                return message.reply('Prefix no debe tener espacios!');
+                return message.reply('❌ Prefix no debe tener espacios!');
             }
             
             // Store the old prefix for the response
@@ -102,7 +106,7 @@ module.exports = {
             config.bot.prefix = newPrefix;
             
             await message.reply(
-                `Bot prefix cambiado de \`${oldPrefix}\` a \`${newPrefix}\`!\n` +
+                `✅ Bot prefix cambiado de \`${oldPrefix}\` a \`${newPrefix}\`!\n` +
                 `Ahora puedes usar los comandos: \`${newPrefix}help\``
             );
             

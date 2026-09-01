@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
 const councilService = require("../services/CouncilService");
 
 module.exports = {
@@ -72,8 +72,8 @@ module.exports = {
             if (!interaction.member.permissions.has("ManageGuild")) {
                 return interaction.reply({
                     content:
-                        "Necesitas permisos de administrador del servidor.",
-                    flags: MessageFlags.Ephemeral,
+                        "❌ Necesitas permisos de administrador del servidor.",
+                    ephemeral: true,
                 });
             }
 
@@ -82,8 +82,8 @@ module.exports = {
             if (!council.enabled) {
                 return interaction.reply({
                     content:
-                        "No hay ningun consejo en este canal. Usa `/council create` primero.",
-                    flags: MessageFlags.Ephemeral,
+                        "❌ No hay ningun consejo en este canal. Usa `/council create` primero.",
+                    ephemeral: true,
                 });
             }
 
@@ -94,7 +94,7 @@ module.exports = {
                 const valueStr = interaction.options.getString("value");
                 let value = valueStr;
 
-                if (setting.includes("Role")) {
+                if (setting.endsWith("Role")) {
                     const roleMatch = valueStr.match(/<@&(\d+)>/);
                     if (roleMatch) {
                         value = roleMatch[1];
@@ -106,28 +106,31 @@ module.exports = {
                             value = role.id;
                         } else {
                             return interaction.reply({
-                                content: "Rol no encontrado.",
-                                flags: MessageFlags.Ephemeral,
+                                content: "❌ Rol no encontrado.",
+                                ephemeral: true,
                             });
                         }
                     }
                 } else if (
-                    setting.includes("Cooldown") ||
-                    setting.includes("Expiration")
+                    setting === "userCooldown" ||
+                    setting === "motionExpiration"
                 ) {
                     value = parseFloat(valueStr) * 3600000;
                     if (isNaN(value)) {
                         return interaction.reply({
-                            content: "Pon un número valido de horas.",
-                            flags: MessageFlags.Ephemeral,
+                            content: "❌ Pon un número valido de horas.",
+                            ephemeral: true,
                         });
                     }
-                } else if (setting.includes("Majority")) {
+                } else if (
+                    setting === "majorityDefault" ||
+                    setting === "majorityMinimum"
+                ) {
                     value = parseFloat(valueStr) / 100;
                     if (isNaN(value) || value < 0 || value > 1) {
                         return interaction.reply({
-                            content: "Pon un porcentaje entre 0 y 100.",
-                            flags: MessageFlags.Ephemeral,
+                            content: "❌ Pon un porcentaje entre 0 y 100.",
+                            ephemeral: true,
                         });
                     }
                 } else if (
@@ -142,7 +145,8 @@ module.exports = {
                 councilService.setConfig(interaction.channelId, setting, value);
 
                 await interaction.reply({
-                    content: `Configuracion Actualizada: **${setting}** = ${valueStr}`,
+                    content: `✅ Configuracion Actualizada: **${setting}** = ${valueStr}`,
+                    ephemeral: false,
                 });
             } else if (subcommand === "view") {
                 let config = `**Council Configuration for ${council.name}**\n\n`;
@@ -162,6 +166,7 @@ module.exports = {
 
                 await interaction.reply({
                     content: config,
+                    ephemeral: false,
                 });
             }
         } catch (error) {
@@ -173,12 +178,12 @@ module.exports = {
             if (interaction.replied || interaction.deferred) {
                 await interaction.followUp({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             } else {
                 await interaction.reply({
                     content: errorMessage,
-                    flags: MessageFlags.Ephemeral,
+                    ephemeral: true,
                 });
             }
         }

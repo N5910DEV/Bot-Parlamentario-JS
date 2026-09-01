@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, MessageFlags } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const councilService = require('../services/CouncilService');
 const { motionService, MotionResolution } = require('../services/MotionService');
 
@@ -13,8 +13,8 @@ module.exports = {
             
             if (!council.enabled) {
                 return interaction.reply({
-                    content: 'No hay ningun consejo en este canal.',
-                    flags: MessageFlags.Ephemeral
+                    content: '❌ No hay ningun consejo en este canal.',
+                    ephemeral: true
                 });
             }
 
@@ -22,8 +22,8 @@ module.exports = {
 
             if (allMotions.length === 0) {
                 return interaction.reply({
-                    content: 'No hay estadisticas aun. Crea tu mocion con: `/motion create`.',
-                    flags: MessageFlags.Ephemeral
+                    content: '📊 No hay estadisticas aun. Crea tu mocion con: `/motion create`.',
+                    ephemeral: true
                 });
             }
 
@@ -57,14 +57,14 @@ module.exports = {
                 .sort((a, b) => b.votes - a.votes)
                 .slice(0, 5);
 
-            let stats = `**Council Stats por ${council.name}**\n\n`;
+            let stats = `**📊 Council Stats por ${council.name}**\n\n`;
             
             stats += `**Stats de la Mocion:**\n`;
             stats += `Total Mocions: ${allMotions.length}\n`;
-            stats += `Pasadas: ${passed}\n`;
-            stats += `Fallidas: ${failed}\n`;
-            stats += `Killed: ${killed}\n`;
-            stats += `Activas: ${active}\n\n`;
+            stats += `✅ Pasadas: ${passed}\n`;
+            stats += `❌ Fallidas: ${failed}\n`;
+            stats += `🗑️ Killed: ${killed}\n`;
+            stats += `📝 Activas: ${active}\n\n`;
 
             const resolvedMotions = allMotions.length - active;
             const passRate = resolvedMotions > 0
@@ -81,6 +81,7 @@ module.exports = {
 
             await interaction.reply({
                 content: stats,
+                ephemeral: false
             });
 
         } catch (error) {
@@ -89,9 +90,9 @@ module.exports = {
             const errorMessage = 'There was an error while executing this command!';
             
             if (interaction.replied || interaction.deferred) {
-                await interaction.followUp({ content: errorMessage, flags: MessageFlags.Ephemeral });
+                await interaction.followUp({ content: errorMessage, ephemeral: true });
             } else {
-                await interaction.reply({ content: errorMessage, flags: MessageFlags.Ephemeral });
+                await interaction.reply({ content: errorMessage, ephemeral: true });
             }
         }
     },
